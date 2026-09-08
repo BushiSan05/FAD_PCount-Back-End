@@ -1,23 +1,36 @@
 <?php
 // Fetch all files from the directory
 header('Content-Type: text/html; charset=utf-8');
+
 $dirPath = FCPATH . 'nfitems/';
 $allFiles = [];
+
 if (is_dir($dirPath)) {
     foreach (scandir($dirPath) as $file) {
-        if ($file === '.' || $file === '..') continue;
-        $allFiles[] = $file;
+
+        if ($file === '.' || $file === '..') {
+            continue;
+        }
+
+        $filePath = $dirPath . $file;
+
+        if (is_file($filePath)) {
+            $allFiles[] = $file;
+        }
     }
 }
 
-// Fetch uploader info from DB
-$dbFiles = $this->db->select('filename, uploader, fullname, uploaded_at')
+// Fetch uploader information from DB
+$dbFiles = $this->db
+    ->select('filename, uploader, fullname, uploaded_at')
     ->get('uploaded_nfitems')
     ->result_array();
 
-// Map uploader info by filename for easy lookup
+// Map uploader information by filename
 $uploaderMap = [];
+
 foreach ($dbFiles as $f) {
+
     $uploaderMap[$f['filename']] = [
         'uploader' => $f['uploader'],
         'fullname' => $f['fullname'],
@@ -26,288 +39,784 @@ foreach ($dbFiles as $f) {
 }
 ?>
 
-
 <!DOCTYPE html>
-<html>
+<html lang="en">
 
 <head>
+
     <meta charset="utf-8">
-    <title>FAD PCount NFItem CSV's</title>
-    <style>
-        body {
-            font-family: Arial;
-            padding: 20px;
-        }
 
-        table {
-            border-collapse: collapse;
-            width: 100%;
-        }
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
 
-        th,
-        td {
-            border: 1px solid #ccc;
-            padding: 8px;
-            text-align: left;
-        }
+    <link rel="shortcut icon"
+        href="<?= base_url('favicon.ico') ?>">
 
-        th {
-            background: #f0f0f0;
-        }
+    <link rel="icon"
+        type="image/x-icon"
+        href="<?= base_url('favicon.ico') ?>">
 
-        .back-btn {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background: #6c757d;
-            color: white;
-            padding: 10px 16px;
-            border-radius: 6px;
-            text-decoration: none;
-            z-index: 999;
-        }
+    <title>FAD PCount NFItems CSV's</title>
 
-        .back-btn:hover {
-            background: #545b62;
-        }
-    </style>
+    <link rel="stylesheet" href="<?= base_url('assets/css/csv_nfitems.css') ?>">
+
 </head>
 
 <body>
 
-    <a href="<?= base_url('menu') ?>" class="back-btn">
-        ← Back to Menu
-    </a>
+    <div class="page-container">
 
-    <h2>🗃️ NFItems CSV Viewing</h2>
+        <!-- ==============================
+             HEADER
+        =============================== -->
 
-    <p><b>Upload Path:</b> /nfitems/</p>
+        <div class="page-header">
 
-    <table>
-        <tr>
-            <th># <span class="sort-arrow"></span></th>
-            <th>Filename <span class="sort-arrow"></span></th>
-            <th>Last Uploader <span class="sort-arrow"></span></th>
-            <th>Full Name <span class="sort-arrow"></span></th>
-            <th>Size (KB) <span class="sort-arrow"></span></th>
-            <th>Uploaded <span class="sort-arrow"></span></th>
-            <th>Action</th>
-        </tr>
+            <a
+                href="<?= base_url('menu') ?>"
+                class="back-btn"
+                title="Back to Menu">
 
-        <style>
-            th {
-                cursor: pointer;
-                user-select: none;
-                position: relative;
-            }
+                <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round">
 
-            .sort-arrow {
-                display: inline-block;
-                margin-left: 5px;
-                width: 10px;
-            }
+                    <path d="M19 12H5"></path>
+                    <path d="M12 19L5 12L12 5"></path>
 
-            .sort-asc::after {
-                content: "▲";
-                font-size: 10px;
-            }
+                </svg>
 
-            .sort-desc::after {
-                content: "▼";
-                font-size: 10px;
-            }
+            </a>
 
-            .nf-action-btn,
-            .nf-download-select {
-                display: inline-flex;
-                align-items: center;
-                vertical-align: middle;
-                height: 34px;
-                box-sizing: border-box;
-                border-radius: 6px;
-                font-size: 13px;
-                font-family: inherit;
-            }
+            <h1 class="page-title">
+                🗃️ NFItems CSV Viewing
+            </h1>
 
-            /* View Contents button */
-            .nf-view-btn {
-                padding: 0 12px;
-                background: #f5f5f5;
-                border: 1px solid #ccc;
-                color: #333;
-                text-decoration: none;
-                cursor: pointer;
-                transition: all 0.2s ease;
-            }
+            <div class="header-spacer"></div>
 
-            .nf-view-btn:hover {
-                background: #e9e9e9;
-                border-color: #aaa;
-                color: #111;
-                text-decoration: none;
-            }
+        </div>
 
-            /* Download dropdown */
-            .nf-download-select {
-                margin-left: 6px;
-                padding: 0 10px;
-                min-width: 155px;
-                background: #fff;
-                border: 1px solid #ccc;
-                color: #333;
-                cursor: pointer;
-                outline: none;
-                transition: all 0.2s ease;
-            }
 
-            .nf-download-select:hover {
-                border-color: #888;
-            }
+        <!-- ==============================
+             INFORMATION CARD
+        =============================== -->
 
-            .nf-download-select:focus {
-                border-color: #555;
-                box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
-            }
+        <div class="info-card">
 
-            .nf-download-select option {
-                padding: 8px;
-            }
+            <div class="info-left">
 
-            /* Mobile */
-            @media (max-width: 600px) {
-                td {
-                    white-space: normal !important;
+                <div class="info-icon">
+                    📁
+                </div>
+
+                <div class="info-content">
+
+                    <div class="info-title">
+                        NFItems CSV Directory
+                    </div>
+
+                    <div class="info-path">
+                        /nfitems/
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="file-count">
+
+                <?= count($allFiles) ?>
+
+                <?= count($allFiles) == 1
+                    ? 'File'
+                    : 'Files' ?>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             SEARCH
+        =============================== -->
+
+        <div class="search-card">
+
+            <div class="search-wrapper">
+
+                <span class="search-icon">
+                    🔎
+                </span>
+
+                <input
+                    type="text"
+                    id="fileSearch"
+                    placeholder="Search filename, uploader, or full name..."
+                    autocomplete="off">
+
+                <button
+                    type="button"
+                    id="clearSearch"
+                    class="clear-search"
+                    title="Clear search">
+
+                    ×
+
+                </button>
+
+            </div>
+
+        </div>
+
+
+        <!-- ==============================
+             TABLE
+        =============================== -->
+
+        <div class="table-card">
+
+            <div class="table-container">
+
+                <table id="nfTable">
+
+                    <thead>
+
+                        <tr>
+
+                            <th data-column="0">
+                                #
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th data-column="1">
+                                Filename
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th data-column="2">
+                                Last Uploader
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th data-column="3">
+                                Full Name
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th data-column="4">
+                                Size (KB)
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th data-column="5">
+                                Uploaded
+                                <span class="sort-arrow"></span>
+                            </th>
+
+                            <th>
+                                Action
+                            </th>
+
+                        </tr>
+
+                    </thead>
+
+                    <tbody>
+
+                        <?php if (empty($allFiles)): ?>
+
+                            <tr class="empty-message">
+
+                                <td
+                                    colspan="7"
+                                    class="empty-row">
+
+                                    <div class="empty-icon">
+                                        📂
+                                    </div>
+
+                                    <div class="empty-text">
+                                        No NFItems files uploaded
+                                    </div>
+
+                                </td>
+
+                            </tr>
+
+                        <?php else: ?>
+
+                            <?php $count = 1; ?>
+
+                            <?php foreach ($allFiles as $fileName): ?>
+
+                                <?php
+
+                                $filePath = $dirPath . $fileName;
+
+                                $sizeKB = file_exists($filePath)
+                                    ? round(filesize($filePath) / 1024, 2)
+                                    : 0;
+
+                                $uploader = isset($uploaderMap[$fileName])
+                                    ? $uploaderMap[$fileName]['uploader']
+                                    : 'Unknown';
+
+                                $fullname = isset($uploaderMap[$fileName])
+                                    ? $uploaderMap[$fileName]['fullname']
+                                    : 'Unknown';
+
+                                $uploadedAt = isset($uploaderMap[$fileName])
+                                    ? $uploaderMap[$fileName]['uploaded_at']
+                                    : '-';
+
+                                $uploadedTimestamp =
+                                    strtotime($uploadedAt);
+
+                                ?>
+
+                                <tr
+                                    data-search="<?= htmlspecialchars(
+                                                        strtolower(
+                                                            $fileName . ' ' .
+                                                                $uploader . ' ' .
+                                                                $fullname
+                                                        )
+                                                    ) ?>">
+
+                                    <td data-sort="<?= $count ?>">
+                                        <?= $count++ ?>
+                                    </td>
+
+                                    <td
+                                        data-sort="<?= htmlspecialchars($fileName) ?>"
+                                        class="filename">
+
+                                        <?= htmlspecialchars($fileName) ?>
+
+                                    </td>
+
+                                    <td
+                                        data-sort="<?= htmlspecialchars($uploader) ?>">
+
+                                        <?= htmlspecialchars($uploader) ?>
+
+                                    </td>
+
+                                    <td
+                                        data-sort="<?= htmlspecialchars($fullname) ?>">
+
+                                        <?= htmlspecialchars($fullname) ?>
+
+                                    </td>
+
+                                    <td data-sort="<?= $sizeKB ?>">
+
+                                        <?= number_format(
+                                            $sizeKB,
+                                            2
+                                        ) ?>
+
+                                    </td>
+
+                                    <td data-sort="<?= $uploadedTimestamp ?>">
+
+                                        <?= htmlspecialchars($uploadedAt) ?>
+
+                                    </td>
+
+                                    <td class="action-cell">
+
+                                        <!-- VIEW CONTENTS -->
+
+                                        <a
+                                            href="<?= site_url(
+                                                        'CsvMonitor/viewNfCsv/' .
+                                                            rawurlencode($fileName)
+                                                    ) ?>"
+                                            class="nf-action-btn nf-view-btn"
+                                            title="View CSV contents">
+
+                                            👁 View Contents
+
+                                        </a>
+
+
+                                        <!-- DOWNLOAD -->
+
+                                        <select
+                                            class="nf-download-select"
+                                            onchange="downloadNfFile(
+                                                this,
+                                                '<?= htmlspecialchars(
+                                                        $fileName,
+                                                        ENT_QUOTES,
+                                                        'UTF-8'
+                                                    ) ?>'
+                                            )"
+                                            title="Download file">
+
+                                            <option value="">
+                                                ⬇ Download As...
+                                            </option>
+
+                                            <option value="csv">
+                                                📄 CSV
+                                            </option>
+
+                                            <option value="xlsx">
+                                                📊 Excel (XLSX)
+                                            </option>
+
+                                        </select>
+
+                                    </td>
+
+                                </tr>
+
+                            <?php endforeach; ?>
+
+                        <?php endif; ?>
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+
+            <!-- TABLE FOOTER -->
+
+            <div class="table-footer">
+
+                <div class="result-count">
+
+                    Showing
+                    <span id="visibleCount">
+                        <?= count($allFiles) ?>
+                    </span>
+                    of
+                    <?= count($allFiles) ?>
+                    files
+
+                </div>
+
+                <div class="scroll-hint">
+
+                    ↔ Scroll horizontally to view more columns
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <script>
+        document.addEventListener(
+            'DOMContentLoaded',
+            function() {
+
+                const table =
+                    document.getElementById('nfTable');
+
+                const tbody =
+                    table.querySelector('tbody');
+
+                const headers =
+                    table.querySelectorAll(
+                        'thead th[data-column]'
+                    );
+
+                const searchInput =
+                    document.getElementById('fileSearch');
+
+                const clearSearch =
+                    document.getElementById('clearSearch');
+
+                const visibleCount =
+                    document.getElementById('visibleCount');
+
+
+                /* =========================================
+                   SEARCH
+                ========================================= */
+
+                function filterTable() {
+
+                    const searchTerm =
+                        searchInput.value
+                        .trim()
+                        .toLowerCase();
+
+                    const rows =
+                        tbody.querySelectorAll(
+                            'tr[data-search]'
+                        );
+
+                    let visible = 0;
+
+                    rows.forEach(function(row) {
+
+                        const searchableText =
+                            row.dataset.search || '';
+
+                        const matches =
+                            searchableText.includes(
+                                searchTerm
+                            );
+
+                        row.style.display =
+                            matches ? '' : 'none';
+
+                        if (matches) {
+                            visible++;
+                        }
+
+                    });
+
+                    visibleCount.textContent =
+                        visible;
+
+                    clearSearch.style.display =
+                        searchTerm !== '' ?
+                        'flex' :
+                        'none';
+
                 }
 
-                .nf-action-btn,
-                .nf-download-select {
-                    margin-top: 3px;
-                    margin-bottom: 3px;
+
+                searchInput.addEventListener(
+                    'input',
+                    filterTable
+                );
+
+
+                clearSearch.addEventListener(
+                    'click',
+                    function() {
+
+                        searchInput.value = '';
+
+                        filterTable();
+
+                        searchInput.focus();
+
+                    }
+                );
+
+
+                /* =========================================
+                   SORTING
+                ========================================= */
+
+                function getCellValue(
+                    row,
+                    index
+                ) {
+
+                    const cell =
+                        row.children[index];
+
+                    if (!cell) {
+                        return '';
+                    }
+
+                    return cell.dataset.sort ||
+                        cell.innerText.trim();
+
                 }
 
-                .nf-download-select {
-                    min-width: 145px;
+
+                function compareValues(
+                    valueA,
+                    valueB,
+                    ascending
+                ) {
+
+                    const numA =
+                        Number(valueA);
+
+                    const numB =
+                        Number(valueB);
+
+
+                    const bothNumeric =
+                        valueA !== '' &&
+                        valueB !== '' &&
+                        !isNaN(numA) &&
+                        !isNaN(numB);
+
+
+                    if (bothNumeric) {
+
+                        return ascending ?
+                            numA - numB :
+                            numB - numA;
+
+                    }
+
+
+                    return ascending
+
+                        ?
+                        valueA
+                        .toString()
+                        .localeCompare(
+                            valueB.toString(),
+                            undefined, {
+                                numeric: true,
+                                sensitivity: 'base'
+                            }
+                        )
+
+                        :
+                        valueB
+                        .toString()
+                        .localeCompare(
+                            valueA.toString(),
+                            undefined, {
+                                numeric: true,
+                                sensitivity: 'base'
+                            }
+                        );
+
                 }
+
+
+                headers.forEach(
+                    function(header) {
+
+                        header.asc = undefined;
+
+
+                        header.addEventListener(
+                            'click',
+                            function() {
+
+                                const columnIndex =
+                                    parseInt(
+                                        header.dataset.column,
+                                        10
+                                    );
+
+
+                                /*
+                                 * First click:
+                                 * Ascending
+                                 *
+                                 * Second click:
+                                 * Descending
+                                 */
+
+                                header.asc =
+                                    header.asc === undefined ?
+                                    true :
+                                    !header.asc;
+
+
+                                const ascending =
+                                    header.asc;
+
+
+                                /*
+                                 * Remove arrows
+                                 */
+
+                                headers.forEach(
+                                    function(h) {
+
+                                        const arrow =
+                                            h.querySelector(
+                                                '.sort-arrow'
+                                            );
+
+                                        if (arrow) {
+
+                                            arrow.classList.remove(
+                                                'sort-asc',
+                                                'sort-desc'
+                                            );
+
+                                        }
+
+                                    }
+                                );
+
+
+                                /*
+                                 * Add arrow
+                                 */
+
+                                const arrow =
+                                    header.querySelector(
+                                        '.sort-arrow'
+                                    );
+
+                                if (arrow) {
+
+                                    arrow.classList.add(
+                                        ascending ?
+                                        'sort-asc' :
+                                        'sort-desc'
+                                    );
+
+                                }
+
+
+                                /*
+                                 * Get rows
+                                 */
+
+                                const rows =
+                                    Array.from(
+                                        tbody.querySelectorAll(
+                                            'tr[data-search]'
+                                        )
+                                    );
+
+
+                                /*
+                                 * Sort rows
+                                 */
+
+                                rows.sort(
+                                    function(a, b) {
+
+                                        return compareValues(
+                                            getCellValue(
+                                                a,
+                                                columnIndex
+                                            ),
+                                            getCellValue(
+                                                b,
+                                                columnIndex
+                                            ),
+                                            ascending
+                                        );
+
+                                    }
+                                );
+
+
+                                /*
+                                 * Reinsert rows
+                                 */
+
+                                rows.forEach(
+                                    function(row) {
+
+                                        tbody.appendChild(row);
+
+                                    }
+                                );
+
+
+                                /*
+                                 * Update row numbers
+                                 */
+
+                                const sortedRows =
+                                    Array.from(
+                                        tbody.querySelectorAll(
+                                            'tr[data-search]'
+                                        )
+                                    );
+
+
+                                sortedRows.forEach(
+                                    function(row, index) {
+
+                                        const numberCell =
+                                            row.children[0];
+
+                                        if (numberCell) {
+
+                                            numberCell.textContent =
+                                                index + 1;
+
+                                            numberCell.dataset.sort =
+                                                index + 1;
+
+                                        }
+
+                                    }
+                                );
+
+                            }
+                        );
+
+                    }
+                );
+
             }
-        </style>
+        );
 
-        <?php if (empty($allFiles)): ?>
-            <tr>
-                <td colspan="7">No files uploaded</td>
-            </tr>
-        <?php else: ?>
-            <?php $count = 1; ?>
-            <?php foreach ($allFiles as $fileName): ?>
-                <?php
-                $filePath = $dirPath . $fileName;
-                $sizeKB = file_exists($filePath) ? round(filesize($filePath) / 1024, 2) : 0;
 
-                $uploader = isset($uploaderMap[$fileName]) ? $uploaderMap[$fileName]['uploader'] : 'Unknown';
-                $fullname = isset($uploaderMap[$fileName]) ? $uploaderMap[$fileName]['fullname'] : 'Unknown';
-                $uploadedAt = isset($uploaderMap[$fileName]) ? $uploaderMap[$fileName]['uploaded_at'] : '-';
-                ?>
-                <tr>
-                    <td data-sort="<?php echo $count; ?>"><?php echo $count++; ?></td>
-                    <td data-sort="<?php echo $fileName; ?>"><?php echo $fileName; ?></td>
-                    <td data-sort="<?php echo $uploader; ?>"><?php echo $uploader; ?></td>
-                    <td data-sort="<?php echo $fullname; ?>"><?php echo $fullname; ?></td>
-                    <td data-sort="<?php echo $sizeKB; ?>"><?php echo $sizeKB; ?></td>
-                    <td data-sort="<?php echo strtotime($uploadedAt); ?>"><?php echo $uploadedAt; ?></td>
-                    <td style="white-space: nowrap;">
+        /* =========================================
+           DOWNLOAD
+        ========================================= */
 
-                        <!-- View Contents -->
-                        <a
-                            href="<?= site_url('CsvMonitor/viewNfCsv/' . rawurlencode($fileName)) ?>"
-                            class="nf-action-btn nf-view-btn"
-                            title="View CSV contents">
-                            👁 View Contents
-                        </a>
+        function downloadNfFile(
+            select,
+            fileName
+        ) {
 
-                        <!-- Download -->
-                        <select
-                            class="nf-download-select"
-                            onchange="downloadNfFile(this, '<?= htmlspecialchars($fileName, ENT_QUOTES, 'UTF-8') ?>')"
-                            title="Download file">
-                            <option value="">⬇ Download As...</option>
-                            <option value="csv">📄 CSV</option>
-                            <option value="xlsx">📊 Excel (XLSX)</option>
-                        </select>
+            const format =
+                select.value;
 
-                    </td>
-                </tr>
-            <?php endforeach; ?>
-        <?php endif; ?>
-    </table>
+            if (!format) {
+                return;
+            }
+
+
+            const encodedFileName =
+                encodeURIComponent(fileName);
+
+            let url = '';
+
+
+            if (format === 'csv') {
+
+                url =
+                    '<?= base_url('nfitems/') ?>' +
+                    encodedFileName;
+
+            } else if (format === 'xlsx') {
+
+                url =
+                    '<?= site_url(
+                            'CsvMonitor/convertNfCsvToXlsx/'
+                        ) ?>' +
+                    encodedFileName;
+
+            }
+
+
+            if (url !== '') {
+
+                window.location.href =
+                    url;
+
+            }
+
+
+            /*
+             * Reset dropdown
+             */
+
+            select.value = '';
+
+        }
+    </script>
 
 </body>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const getCellValue = (tr, idx) => tr.children[idx].dataset.sort || tr.children[idx].innerText;
-
-        const comparer = (idx, asc) => (a, b) => {
-            const v1 = getCellValue(a, idx);
-            const v2 = getCellValue(b, idx);
-
-            // Check if numeric
-            if (!isNaN(v1) && !isNaN(v2)) {
-                return asc ? v1 - v2 : v2 - v1;
-            }
-            // String comparison
-            return asc ? v1.toString().localeCompare(v2) : v2.toString().localeCompare(v1);
-        };
-
-        const table = document.querySelector('table');
-        const ths = table.querySelectorAll('th');
-
-        ths.forEach((th, idx) => {
-            th.addEventListener('click', () => {
-                // Toggle sort direction on this column
-                th.asc = !th.asc; // undefined becomes true on first click
-                const asc = th.asc;
-
-                // Remove arrows from all headers
-                ths.forEach(h => h.querySelector('.sort-arrow')?.classList.remove('sort-asc', 'sort-desc'));
-
-                // Add arrow to clicked column
-                th.querySelector('.sort-arrow')?.classList.add(asc ? 'sort-asc' : 'sort-desc');
-
-                // Sort table rows
-                const rows = Array.from(table.querySelectorAll('tr:nth-child(n+2)'));
-                rows.sort(comparer(idx, asc));
-                rows.forEach(row => table.appendChild(row));
-            });
-        });
-    });
-
-    function downloadNfFile(select, fileName) {
-
-        const format = select.value;
-
-        if (!format) {
-            return;
-        }
-
-        const encodedFileName = encodeURIComponent(fileName);
-
-        let url = '';
-
-        if (format === 'csv') {
-
-            url = '<?= base_url('nfitems/') ?>' + encodedFileName;
-
-        } else if (format === 'xlsx') {
-
-            url = '<?= site_url('CsvMonitor/convertNfCsvToXlsx/') ?>' + encodedFileName;
-        }
-
-        if (url !== '') {
-            window.location.href = url;
-        }
-
-        // Reset dropdown
-        select.value = '';
-    }
-</script>
 
 </html>

@@ -3,24 +3,11 @@ defined('BASEPATH') or exit('No direct script access allowed');
 
 class AppController extends CI_Controller
 {
-
-
-
 	public function __construct()
 	{
 		parent::__construct();
 		$this->load->model('AppModel');
 	}
-
-	// public function app_bcode_ctrl(){
-
-	// 	$this->AppModel->app_bcode_mod();
-
-	// }
-
-	// public function app_countbcode_ctrl(){
-	// 	$this->AppModel->app_countbcode_mod();
-	// }
 
 	public function checkConnection()
 	{
@@ -32,18 +19,6 @@ class AppController extends CI_Controller
 			'time' => microtime(true) - $start,
 		]);
 	}
-
-	// private function fix_name($name) {
-	// 	$name = trim($name);
-	// 	$enc = mb_detect_encoding($name, ['UTF-8','ISO-8859-1','Windows-1252'], true);
-
-	// 	if ($enc === 'UTF-8') {
-	// 		return mb_convert_encoding($name, 'UTF-8', 'ISO-8859-1');
-	// 	} else {
-	// 		return mb_convert_encoding($name, 'UTF-8', $enc);
-	// 	}
-	// }	
-
 
 	public function getCsv($csvFilename)
 	{

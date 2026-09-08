@@ -1,0 +1,754 @@
+* {
+	box-sizing: border-box;
+}
+
+html {
+	font-size: 16px;
+}
+
+body {
+	font-family: Arial, Helvetica, sans-serif;
+	background: #eef3f8;
+	color: #2d3748;
+	margin: 0;
+	padding: 0;
+	overflow-x: hidden;
+}
+
+/* =========================================
+           MAIN CONTAINER
+        ========================================= */
+
+.page-container {
+	width: 100%;
+	max-width: 1500px;
+	margin: 0 auto;
+	padding: 25px;
+}
+
+/* =========================================
+           HEADER
+        ========================================= */
+
+.page-header {
+	display: grid;
+	grid-template-columns: 46px 1fr 46px;
+	align-items: center;
+	gap: 15px;
+	margin-bottom: 20px;
+}
+
+.page-title {
+	margin: 0;
+
+	text-align: center;
+
+	font-size: 30px;
+	font-weight: 700;
+
+	color: #0056b3;
+}
+
+.header-spacer {
+	width: 46px;
+	height: 46px;
+}
+
+/* =========================================
+           BACK BUTTON
+        ========================================= */
+
+.back-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	width: 46px;
+	height: 46px;
+
+	border-radius: 50%;
+
+	background: #ffffff;
+	color: #495057;
+
+	border: 1px solid #dfe5eb;
+
+	text-decoration: none;
+
+	box-shadow: 0 3px 12px rgba(0, 0, 0, 0.06);
+
+	transition:
+		background 0.2s ease,
+		color 0.2s ease,
+		transform 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+.back-btn:hover {
+	background: #0056b3;
+	color: #ffffff;
+
+	transform: translateX(-2px);
+
+	box-shadow: 0 7px 18px rgba(0, 86, 179, 0.25);
+}
+
+.back-btn:active {
+	transform: scale(0.94);
+}
+
+/* =========================================
+           INFORMATION CARD
+        ========================================= */
+
+.info-card {
+	background: #ffffff;
+
+	border: 1px solid #dfe5eb;
+	border-radius: 14px;
+
+	padding: 18px 20px;
+
+	margin-bottom: 15px;
+
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+
+	gap: 15px;
+
+	flex-wrap: wrap;
+}
+
+.info-left {
+	display: flex;
+	align-items: center;
+
+	gap: 14px;
+
+	min-width: 0;
+}
+
+.info-icon {
+	width: 45px;
+	height: 45px;
+
+	flex: 0 0 45px;
+
+	display: flex;
+	align-items: center;
+	justify-content: center;
+
+	background: #e8f2ff;
+	color: #007bff;
+
+	border-radius: 11px;
+
+	font-size: 21px;
+}
+
+.info-content {
+	min-width: 0;
+}
+
+.info-title {
+	font-size: 14px;
+	font-weight: 700;
+
+	color: #343a40;
+
+	margin-bottom: 3px;
+}
+
+.info-path {
+	font-size: 12px;
+	color: #7a8694;
+
+	overflow-wrap: anywhere;
+}
+
+.file-count {
+	background: #eef5ff;
+
+	color: #0069d9;
+
+	border: 1px solid #cfe2ff;
+
+	border-radius: 20px;
+
+	padding: 7px 12px;
+
+	font-size: 13px;
+	font-weight: 700;
+
+	white-space: nowrap;
+}
+
+/* =========================================
+           SEARCH CARD
+        ========================================= */
+
+.search-card {
+	background: #ffffff;
+
+	border: 1px solid #dfe5eb;
+	border-radius: 12px;
+
+	padding: 15px;
+
+	margin-bottom: 15px;
+
+	box-shadow: 0 3px 10px rgba(0, 0, 0, 0.04);
+}
+
+.search-wrapper {
+	position: relative;
+	width: 100%;
+}
+
+.search-icon {
+	position: absolute;
+
+	left: 13px;
+	top: 50%;
+
+	transform: translateY(-50%);
+
+	font-size: 16px;
+	color: #8a94a6;
+
+	pointer-events: none;
+}
+
+#fileSearch {
+	width: 100%;
+
+	height: 42px;
+
+	padding: 8px 40px 8px 38px;
+
+	border: 1px solid #ced4da;
+	border-radius: 7px;
+
+	background: #ffffff;
+
+	color: #333;
+
+	font-size: 14px;
+
+	outline: none;
+
+	transition:
+		border-color 0.2s ease,
+		box-shadow 0.2s ease;
+}
+
+#fileSearch:focus {
+	border-color: #007bff;
+
+	box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.clear-search {
+	position: absolute;
+
+	right: 10px;
+	top: 50%;
+
+	transform: translateY(-50%);
+
+	width: 28px;
+	height: 28px;
+
+	border: none;
+	border-radius: 50%;
+
+	background: #eef1f4;
+
+	color: #6c757d;
+
+	cursor: pointer;
+
+	display: none;
+
+	align-items: center;
+	justify-content: center;
+
+	font-size: 14px;
+}
+
+.clear-search:hover {
+	background: #d9dee4;
+	color: #343a40;
+}
+
+/* =========================================
+           TABLE CARD
+        ========================================= */
+
+.table-card {
+	background: #ffffff;
+
+	border: 1px solid #dfe5eb;
+
+	border-radius: 12px;
+
+	overflow: hidden;
+
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+}
+
+/* =========================================
+           TABLE CONTAINER
+        ========================================= */
+
+.table-container {
+	width: 100%;
+
+	height: 65vh;
+
+	min-height: 300px;
+	max-height: 750px;
+
+	overflow: auto;
+
+	-webkit-overflow-scrolling: touch;
+}
+
+table {
+	border-collapse: separate;
+	border-spacing: 0;
+
+	width: 100%;
+
+	min-width: 1050px;
+}
+
+th,
+td {
+	padding: 10px 12px;
+
+	border-right: 1px solid #e1e6eb;
+	border-bottom: 1px solid #e1e6eb;
+
+	text-align: left;
+
+	font-size: 13px;
+
+	white-space: nowrap;
+}
+
+/* =========================================
+           TABLE HEADER
+        ========================================= */
+
+th {
+	position: sticky;
+
+	top: 0;
+
+	z-index: 5;
+
+	height: 44px;
+
+	background: #e9edf2;
+
+	color: #343a40;
+
+	font-weight: 700;
+
+	cursor: pointer;
+
+	user-select: none;
+
+	transition: background 0.15s ease;
+}
+
+th:hover {
+	background: #d5dce4;
+}
+
+th:last-child,
+td:last-child {
+	border-right: none;
+}
+
+/* =========================================
+           ROW HOVER
+        ========================================= */
+
+tbody tr {
+	transition: background 0.15s ease;
+}
+
+tbody tr:hover td {
+	background: #d9e8f7;
+}
+
+/* =========================================
+           SORT ARROW
+        ========================================= */
+
+.sort-arrow {
+	display: inline-flex;
+
+	align-items: center;
+	justify-content: center;
+
+	width: 12px;
+
+	margin-left: 5px;
+
+	font-size: 9px;
+
+	color: #007bff;
+}
+
+.sort-asc::after {
+	content: "▲";
+}
+
+.sort-desc::after {
+	content: "▼";
+}
+
+/* =========================================
+           FILENAME
+        ========================================= */
+
+.filename {
+	font-weight: 600;
+	color: #343a40;
+}
+
+/* =========================================
+           ACTION AREA
+        ========================================= */
+
+.action-cell {
+	white-space: nowrap !important;
+}
+
+.nf-action-btn,
+.nf-download-select {
+	display: inline-flex;
+
+	align-items: center;
+	justify-content: center;
+
+	vertical-align: middle;
+
+	height: 36px;
+
+	box-sizing: border-box;
+
+	border-radius: 6px;
+
+	font-family: inherit;
+	font-size: 12px;
+
+	transition:
+		background 0.2s ease,
+		border-color 0.2s ease,
+		color 0.2s ease,
+		transform 0.15s ease,
+		box-shadow 0.2s ease;
+}
+
+/* =========================================
+           VIEW CONTENTS BUTTON
+        ========================================= */
+
+.nf-view-btn {
+	padding: 0 12px;
+
+	background: #ffffff;
+
+	border: 1px solid #cbd3da;
+
+	color: #343a40;
+
+	text-decoration: none;
+
+	cursor: pointer;
+}
+
+.nf-view-btn:hover {
+	background: #d9e8f7;
+
+	border-color: #9fb9d2;
+
+	color: #0056b3;
+
+	transform: translateY(-1px);
+
+	box-shadow: 0 4px 10px rgba(0, 86, 179, 0.1);
+
+	text-decoration: none;
+}
+
+.nf-view-btn:active {
+	transform: scale(0.97);
+}
+
+/* =========================================
+           DOWNLOAD SELECT
+        ========================================= */
+
+.nf-download-select {
+	margin-left: 6px;
+
+	padding: 0 10px;
+
+	min-width: 155px;
+
+	background: #007bff;
+
+	border: 1px solid #007bff;
+
+	color: #ffffff;
+
+	cursor: pointer;
+
+	outline: none;
+}
+
+.nf-download-select:hover {
+	background: #0056b3;
+
+	border-color: #0056b3;
+
+	box-shadow: 0 4px 10px rgba(0, 86, 179, 0.18);
+}
+
+.nf-download-select:focus {
+	border-color: #004085;
+
+	box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+}
+
+.nf-download-select option {
+	background: #ffffff;
+	color: #333333;
+	padding: 8px;
+}
+
+/* =========================================
+           EMPTY STATE
+        ========================================= */
+
+.empty-row {
+	text-align: center !important;
+
+	padding: 50px 20px !important;
+
+	color: #7a8694;
+
+	white-space: normal;
+}
+
+.empty-icon {
+	font-size: 35px;
+	margin-bottom: 8px;
+}
+
+.empty-text {
+	font-size: 14px;
+	font-weight: 600;
+}
+
+/* =========================================
+           TABLE FOOTER
+        ========================================= */
+
+.table-footer {
+	display: flex;
+
+	justify-content: space-between;
+	align-items: center;
+
+	gap: 10px;
+
+	padding: 12px 15px;
+
+	background: #ffffff;
+
+	border-top: 1px solid #e1e6eb;
+
+	color: #7a8694;
+
+	font-size: 12px;
+}
+
+.result-count {
+	font-weight: 600;
+}
+
+.scroll-hint {
+	color: #8a94a6;
+}
+
+/* =========================================
+           TABLET
+        ========================================= */
+
+@media (max-width: 900px) {
+	.page-container {
+		padding: 20px;
+	}
+
+	.page-title {
+		font-size: 25px;
+	}
+
+	.table-container {
+		height: 60vh;
+	}
+}
+
+/* =========================================
+           PHONE
+        ========================================= */
+
+@media (max-width: 600px) {
+	.page-container {
+		padding: 12px;
+	}
+
+	.page-header {
+		grid-template-columns: 42px 1fr 42px;
+
+		gap: 8px;
+
+		margin-bottom: 15px;
+	}
+
+	.page-title {
+		font-size: 20px;
+	}
+
+	.back-btn,
+	.header-spacer {
+		width: 42px;
+		height: 42px;
+	}
+
+	.info-card {
+		padding: 14px;
+
+		align-items: flex-start;
+	}
+
+	.info-icon {
+		width: 40px;
+		height: 40px;
+
+		flex-basis: 40px;
+
+		font-size: 18px;
+	}
+
+	.file-count {
+		width: 100%;
+		text-align: center;
+	}
+
+	.search-card {
+		padding: 12px;
+	}
+
+	#fileSearch {
+		height: 44px;
+	}
+
+	.table-container {
+		height: 52vh;
+		min-height: 280px;
+	}
+
+	th,
+	td {
+		padding: 10px;
+		font-size: 12px;
+	}
+
+	.nf-action-btn,
+	.nf-download-select {
+		height: 38px;
+	}
+
+	.nf-download-select {
+		min-width: 145px;
+	}
+
+	.table-footer {
+		flex-direction: column;
+		align-items: flex-start;
+	}
+
+	.scroll-hint {
+		display: none;
+	}
+}
+
+/* =========================================
+           SMALL PHONE
+        ========================================= */
+
+@media (max-width: 380px) {
+	.page-container {
+		padding: 9px;
+	}
+
+	.page-title {
+		font-size: 18px;
+	}
+
+	.info-card {
+		border-radius: 10px;
+	}
+
+	.info-path {
+		font-size: 11px;
+	}
+
+	.table-container {
+		height: 48vh;
+	}
+
+	.nf-view-btn {
+		padding: 0 9px;
+	}
+
+	.nf-download-select {
+		min-width: 140px;
+	}
+}
+
+/* =========================================
+           LANDSCAPE PHONE
+        ========================================= */
+
+@media (max-height: 500px) and (orientation: landscape) {
+	.page-container {
+		padding-top: 12px;
+	}
+
+	.table-container {
+		height: 65vh;
+	}
+}
+
+/* =========================================
+           REDUCED MOTION
+        ========================================= */
+
+@media (prefers-reduced-motion: reduce) {
+	*,
+	*::before,
+	*::after {
+		transition: none !important;
+	}
+}

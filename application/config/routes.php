@@ -35,6 +35,9 @@ $route['csvmonitor/view']                     = 'CsvMonitor/monitoring';
 $route['csvmonitor/upload']                   = 'CsvMonitor/upload';
 
 $route['nfitemmonitor/nfitem']                = 'CsvMonitor/nfitem';
+$route['masterfilemonitor/list']              = 'MasterfileMonitor/index';
+$route['masterfilemonitor/getDepartments']    = 'MasterfileMonitor/getDepartmentsByLocation';
+$route['masterfilemonitor/getBarpost']        = 'MasterfileMonitor/getBarpostByDepartment';
 
 
 $route['default_controller'] = 'login';
